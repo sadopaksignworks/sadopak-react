@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 
 interface ContactSectionProps {
-  onBookConsultation: () => void;
+  _onBookConsultation: () => void;
 }
 
 const socialLinks = [
@@ -19,7 +19,7 @@ const socialLinks = [
   { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1XUJWaLPCg/?mibextid=wwXIfr' },
 ];
 
-export default function ContactSection({ onBookConsultation }: ContactSectionProps) {
+export default function ContactSection({ _onBookConsultation }: ContactSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
