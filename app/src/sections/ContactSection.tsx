@@ -1,28 +1,60 @@
 import { useRef, useLayoutEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MapPin, Phone, Mail, ArrowRight, Check, Facebook, Youtube, Instagram } from 'lucide-react';
+import {
+  MapPin,
+  Phone,
+  Mail,
+  ArrowRight,
+  Check,
+  Facebook,
+  Youtube,
+  Instagram,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import { submitLead } from '@/lib/sadopakApi';
-import HcaptchaBox from '@/components/HcaptchaBox';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// X (Twitter) Icon Component
+const XIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
 
 interface ContactSectionProps {
-  _onBookConsultation: () => void;
+  /**
+   * Optional because some pages might render <ContactSection /> without it.
+   * We also safe-call it to prevent runtime crashes.
+   */
+  onBookConsultation?: () => void;
 }
 
 const socialLinks = [
-  { name: 'YouTube', icon: Youtube, href: 'https://youtube.com/@sadopaksignworks?si=4X1KXxg_i4j1nKIT' },
-  { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/sadopaksignworks?igsh=MWhtejRtZnkyMHBzNQ%3D%3D&utm_source=qr' },
-  { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1XUJWaLPCg/?mibextid=wwXIfr' },
+  {
+    name: 'YouTube',
+    icon: Youtube,
+    href: 'https://youtube.com/@sadopaksignworks?si=4X1KXxg_i4j1nKIT',
+  },
+  {
+    name: 'Instagram',
+    icon: Instagram,
+    href: 'https://www.instagram.com/sadopaksignworks?igsh=MWhtejRtZnkyMHBzNQ%3D%3D&utm_source=qr',
+  },
+  {
+    name: 'Facebook',
+    icon: Facebook,
+    href: 'https://www.facebook.com/share/1XUJWaLPCg/?mibextid=wwXIfr',
+  },
+  // Keep X icon if you want it visible; update URL later if needed
+  { name: 'X', icon: XIcon, href: '#' },
 ];
 
-export default function ContactSection({ _onBookConsultation }: ContactSectionProps) {
+export default function ContactSection({ onBookConsultation }: ContactSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
+
   const [formData, setFormData] = useState({
     name: '',
     businessName: '',
@@ -30,8 +62,7 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
     contact: '',
     message: '',
   });
-  const [hToken, setHToken] = useState('');
-  const [captchaKey, setCaptchaKey] = useState(0);
+
   const [submitted, setSubmitted] = useState(false);
 
   useLayoutEffect(() => {
@@ -39,8 +70,8 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
     if (!section) return;
 
     const ctx = gsap.context(() => {
-      // Left column animation
-      gsap.fromTo(leftRef.current,
+      gsap.fromTo(
+        leftRef.current,
         { x: -50, opacity: 0 },
         {
           x: 0,
@@ -55,8 +86,8 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
         }
       );
 
-      // Right column animation
-      gsap.fromTo(rightRef.current,
+      gsap.fromTo(
+        rightRef.current,
         { x: 50, opacity: 0 },
         {
           x: 0,
@@ -75,41 +106,24 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
     return () => ctx.revert();
   }, []);
 
-  const handleSubmit = async () => {
-    if (!formData.name || !formData.contact) return;
-
-    if (!hToken) {
-      toast.error('Please complete the verification (hCaptcha).');
-      return;
-    }
-    try {
-      await submitLead({
-        type: 'contact',
-        name: formData.name,
-        phone: formData.contact,
-        businessName: formData.businessName,
-        location: formData.location,
-        message: formData.message,
-        hcaptchaToken: hToken,
-      });
+  const handleSubmit = (type: 'free' | 'paid') => {
+    if (formData.name && formData.contact) {
       setSubmitted(true);
-      toast.success('Message sent. We will contact you shortly.');
+      toast.success(
+        type === 'free'
+          ? 'Free appointment requested! We will contact you shortly.'
+          : 'Consultation booking received! Payment instructions sent to your contact.'
+      );
+
       setTimeout(() => {
         setSubmitted(false);
         setFormData({ name: '', businessName: '', location: '', contact: '', message: '' });
-        setHToken('');
-        setCaptchaKey((k) => k + 1);
-      }, 2500);
-    } catch (e: any) {
-      toast.error(e?.message || 'Failed to send message');
+      }, 3000);
     }
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative w-full bg-brand-light"
-    >
+    <section ref={sectionRef} className="relative w-full bg-brand-light">
       <div className="flex flex-col lg:flex-row">
         {/* Left Column - Business Card */}
         <div
@@ -119,18 +133,16 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
           <div className="bg-white rounded-[20px] p-6 sm:p-8 border border-brand-dark/8 shadow-card">
             {/* Logo */}
             <div className="mb-8 flex items-center gap-4">
-              <img 
-                src="/logo-light.png" 
-                alt="SADOPAK SIGNWORKS" 
+              <img
+                src="/logo-light.png"
+                alt="SADOPAK SIGNWORKS"
                 className="logo-card"
               />
               <div>
                 <h3 className="font-display text-xl sm:text-2xl font-bold text-brand-dark mb-1">
                   SADOPAK SIGNWORKS
                 </h3>
-                <p className="micro-label text-brand-accent">
-                  SIGNAGE CONSULTANCY & BROKERAGE
-                </p>
+                <p className="micro-label text-brand-accent">SIGNAGE CONSULTANCY & BROKERAGE</p>
               </div>
             </div>
 
@@ -152,17 +164,21 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
                 </div>
                 <span className="text-brand-dark text-sm sm:text-base">Available nationwide</span>
               </div>
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
                   <Phone className="w-5 h-5 text-brand-accent" />
                 </div>
-                <a className="text-brand-dark text-sm sm:text-base hover:underline" href="tel:+260573037125">+260573037125</a>
+                <span className="text-brand-dark text-sm sm:text-base">+260573037125</span>
               </div>
+
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-brand-accent/10 flex items-center justify-center">
                   <Mail className="w-5 h-5 text-brand-accent" />
                 </div>
-                <a className="text-brand-dark text-sm sm:text-base hover:underline" href="mailto:sadopaksignworks@gmail.com">sadopaksignworks@gmail.com</a>
+                <span className="text-brand-dark text-sm sm:text-base">
+                  sadopaksignworks@gmail.com
+                </span>
               </div>
             </div>
 
@@ -184,13 +200,14 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
               <p className="micro-label text-brand-text-muted mb-3">FOLLOW US</p>
               <div className="flex gap-3">
                 {socialLinks.map((social) => {
-                  const Icon = social.icon;
+                  const Icon = social.icon as any;
+                  const isPlaceholder = social.href === '#';
                   return (
                     <a
                       key={social.name}
                       href={social.href}
-                      target="_blank"
-                      rel="noreferrer"
+                      target={isPlaceholder ? undefined : '_blank'}
+                      rel={isPlaceholder ? undefined : 'noreferrer'}
                       className="w-10 h-10 rounded-xl bg-brand-dark/5 flex items-center justify-center text-brand-dark hover:bg-brand-accent hover:text-white transition-all duration-200"
                       title={social.name}
                     >
@@ -220,20 +237,14 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="font-display text-xl text-brand-dark mb-2">
-                Request Submitted!
-              </h3>
-              <p className="text-brand-text-muted">
-                We'll be in touch within 24 hours.
-              </p>
+              <h3 className="font-display text-xl text-brand-dark mb-2">Request Submitted!</h3>
+              <p className="text-brand-text-muted">We'll be in touch within 24 hours.</p>
             </div>
           ) : (
             <div className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="micro-label text-brand-text-muted mb-2 block">
-                    NAME
-                  </label>
+                  <label className="micro-label text-brand-text-muted mb-2 block">NAME</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -258,9 +269,7 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="micro-label text-brand-text-muted mb-2 block">
-                    LOCATION
-                  </label>
+                  <label className="micro-label text-brand-text-muted mb-2 block">LOCATION</label>
                   <input
                     type="text"
                     value={formData.location}
@@ -296,24 +305,20 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
                 />
               </div>
 
-              <div>
-                <label className="micro-label text-brand-text-muted mb-2 block">
-                  VERIFICATION
-                </label>
-                <HcaptchaBox
-                  key={captchaKey}
-                  onToken={(t) => setHToken(t)}
-                  helperText="Required to send this message."
-                />
-              </div>
-
-              <div className="pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <button
-                  onClick={handleSubmit}
-                  disabled={!formData.name || !formData.contact || !hToken}
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => handleSubmit('free')}
+                  disabled={!formData.name || !formData.contact}
+                  className="btn-secondary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Message
+                  Book Free Appointment
+                </button>
+                <button
+                  onClick={() => handleSubmit('paid')}
+                  disabled={!formData.name || !formData.contact}
+                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Book Paid Consultation
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </button>
               </div>
@@ -325,19 +330,27 @@ export default function ContactSection({ _onBookConsultation }: ContactSectionPr
       {/* Footer */}
       <footer className="bg-brand-dark py-8 px-4 sm:px-6 lg:px-[7vw]">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-brand-text-secondary text-sm">
-            © 2026 SADOPAK SIGNWORKS. All rights reserved.
-          </p>
+          <p className="text-brand-text-secondary text-sm">© 2026 SADOPAK SIGNWORKS. All rights reserved.</p>
+
           <div className="flex gap-6">
-            <a href="/services" className="text-brand-text-secondary text-sm hover:text-brand-light transition-colors">
+            <button
+              onClick={() => onBookConsultation?.()}
+              className="text-brand-text-secondary text-sm hover:text-brand-light transition-colors"
+            >
               Services
-            </a>
-            <a href="/industries" className="text-brand-text-secondary text-sm hover:text-brand-light transition-colors">
+            </button>
+            <button
+              onClick={() => onBookConsultation?.()}
+              className="text-brand-text-secondary text-sm hover:text-brand-light transition-colors"
+            >
               Industries
-            </a>
-            <a href="/contact" className="text-brand-text-secondary text-sm hover:text-brand-light transition-colors">
+            </button>
+            <button
+              onClick={() => onBookConsultation?.()}
+              className="text-brand-text-secondary text-sm hover:text-brand-light transition-colors"
+            >
               Contact
-            </a>
+            </button>
           </div>
         </div>
       </footer>
