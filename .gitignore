@@ -2,3 +2,6 @@
 # never commit deps
 app/node_modules/
 app/dist/
+app/node_modules
+app/dist
+.env
