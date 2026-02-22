@@ -1,0 +1,4 @@
+
+# never commit deps
+app/node_modules/
+app/dist/
