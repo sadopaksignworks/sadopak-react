@@ -5,3 +5,7 @@ app/dist/
 app/node_modules
 app/dist
 .env
+
+node_modules
+dist
+.DS_Store
