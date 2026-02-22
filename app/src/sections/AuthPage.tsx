@@ -46,8 +46,6 @@ export default function AuthPage({ isOpen, onClose, initialMode = 'signin' }: Au
   const wpLoginUrl = `${wpBase}/wp-login.php?redirect_to=${redirectTo}`;
   const wpRegisterUrl = `${wpBase}/wp-login.php?action=register&redirect_to=${redirectTo}`;
   const wpLostPasswordUrl = `${wpBase}/wp-login.php?action=lostpassword&redirect_to=${redirectTo}`;
-  // Direct Google sign-in via Nextend Social Login (matches your authorized redirect URI)
-  const wpGoogleUrl = `${wpBase}/wp-login.php?loginSocial=google&redirect_to=${redirectTo}`;
   const wpMyAccountUrl = `${wpBase}/my-account/`;
 
   const openWpAuth = (url: string) => {
@@ -60,7 +58,10 @@ export default function AuthPage({ isOpen, onClose, initialMode = 'signin' }: Au
       <DialogContent className="bg-white rounded-[20px] p-6 sm:p-8 max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl sm:text-3xl text-brand-dark text-center">
-            {mode === 'signin' ? 'Sign In' : 'Create Account'}
+            {success 
+              ? (mode === 'signin' ? 'Welcome Back!' : 'Welcome!') 
+              : (mode === 'signin' ? 'Sign In' : 'Create Account')
+            }
           </DialogTitle>
         </DialogHeader>
 
@@ -72,11 +73,11 @@ export default function AuthPage({ isOpen, onClose, initialMode = 'signin' }: Au
 
             {/* Google / Social login (via Nextend on WP login screen) */}
             <button
-              onClick={() => openWpAuth(wpGoogleUrl)}
+              onClick={() => openWpAuth(mode === 'signin' ? wpLoginUrl : wpRegisterUrl)}
               className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-brand-dark/15 rounded-[12px] text-brand-dark font-medium hover:bg-brand-dark/5 transition-colors"
             >
               <GoogleIcon className="w-5 h-5" />
-              {mode === 'signin' ? 'Continue with Google' : 'Sign up with Google'}
+              {mode === 'signin' ? 'Continue with Google (via WordPress)' : 'Sign up with Google (via WordPress)'}
               <ExternalLink className="w-4 h-4" />
             </button>
 
