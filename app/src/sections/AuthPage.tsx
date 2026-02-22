@@ -35,10 +35,18 @@ const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export default function AuthPage({ isOpen, onClose, initialMode = 'signin' }: AuthPageProps) {
+export default function AuthPage({
+  isOpen,
+  onClose,
+  initialMode = 'signin',
+}: AuthPageProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
 
-  const wpBase = useMemo(() => (import.meta.env.VITE_WP_URL || 'https://wp.sadopak.org').replace(/\/$/, ''), []);
+  const wpBase = useMemo(
+    () => (import.meta.env.VITE_WP_URL || 'https://wp.sadopak.org').replace(/\/$/, ''),
+    []
+  );
+
   const redirectTo = encodeURIComponent(window.location.href);
 
   // Nextend Social Login buttons are rendered on WordPress login/register screens.
@@ -57,13 +65,10 @@ export default function AuthPage({ isOpen, onClose, initialMode = 'signin' }: Au
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white rounded-[20px] p-6 sm:p-8 max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl sm:text-3xl text-brand-dark text-center">
-            {success 
-              ? (mode === 'signin' ? 'Welcome Back!' : 'Welcome!') 
-              : (mode === 'signin' ? 'Sign In' : 'Create Account')
-            }
-          </DialogTitle>
-        </DialogHeader>
+  <DialogTitle className="font-display text-2xl sm:text-3xl text-brand-dark text-center">
+    {mode === 'signin' ? 'Sign In' : 'Create Account'}
+  </DialogTitle>
+</DialogHeader>
 
         <div className="space-y-5 mt-4">
             <div className="rounded-[14px] border border-brand-dark/10 bg-brand-dark/[0.03] p-4 text-sm text-brand-text-muted">
